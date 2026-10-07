@@ -111,7 +111,7 @@ def write_records_csv(records, csv_path):
 def evaluate(frame_rows, records, perfect, target_brightness):
     exposure = np.array([r["current_exposure_ms"] for r in records])
     p50_values = np.array([r["brightness_p50"] for r in records])
-    ctrl_us = np.array([r["ctrl_time_us"] for r in records])
+    cpu_time = np.array([r["ctrl_time_us"] for r in records])
 
     summary = []
     for scenario in dict.fromkeys(r["scenario"] for r in frame_rows):
@@ -121,7 +121,7 @@ def evaluate(frame_rows, records, perfect, target_brightness):
                 "scenario": scenario,
                 "exposure_mae": float(np.abs(exposure[mask] - perfect[mask]).mean()),
                 "p50_err": float(np.abs(p50_values[mask] - target_brightness).mean()),
-                "ctrl_us": float(ctrl_us[mask].mean()),
+                "cpu_time": float(cpu_time[mask].mean()),
             }
         )
     return summary
@@ -131,7 +131,7 @@ def write_comparison_table(table_path, dataset_name, frame_count, ref_p50, modes
     notes = {
         "exposure_mae": "Mean absolute error to perfect exposure (ms), lower is better",
         "p50_err": "Mean absolute P50 error from target 128, lower is better",
-        "ctrl_us": "Mean controller compute time per frame (μs), lower is better",
+        "cpu_time": "Mean CPU time per frame (μs), lower is better",
     }
 
     lines = [f"Dataset {dataset_name} ({frame_count} frames), reference P50={ref_p50:.1f}", ""]
